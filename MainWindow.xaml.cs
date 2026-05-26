@@ -501,8 +501,45 @@ public partial class MainWindow : Window
                             else
                                 pen.Color = Color.DeepSkyBlue;
                             Brush brush = new SolidBrush(pen.Color);
-                            graphics.DrawString("*", new Font("Consolas", 12, System.Drawing.FontStyle.Bold), brush,
-                                new PointF(x - 7f, y - 7f));
+
+                            if (noteD.HoldTime > 0)
+                            {
+                                var xRight = x + (float)(noteD.HoldTime / step) * linewidth;
+                                if (xRight - x < 1f) xRight = x + 5;
+                                if (noteD.TouchArea != ' ')
+                                {
+                                    var xDelta = (xRight - x) / 4f;
+                                    pen.Color = Color.FromArgb(200, 255, 75, 0);
+                                    if (noteD.IsMine)
+                                        pen.Color = Color.LightGray;
+                                    graphics.DrawLine(pen, x, y, x + xDelta * 4f, y);
+                                    pen.Color = Color.FromArgb(200, 255, 241, 0);
+                                    graphics.DrawLine(pen, x, y, x + xDelta * 3f, y);
+                                    pen.Color = Color.FromArgb(200, 2, 165, 89);
+                                    if (noteD.IsMine)
+                                        pen.Color = Color.Gray;
+                                    graphics.DrawLine(pen, x, y, x + xDelta * 2f, y);
+                                    pen.Color = Color.FromArgb(200, 0, 140, 254);
+                                    graphics.DrawLine(pen, x, y, x + xDelta, y);
+                                }
+                                else
+                                {
+                                    graphics.DrawLine(pen, x, y, xRight, y);
+                                }
+                            }
+                            else
+                            {
+                                if (noteD.TouchArea != ' ')
+                                {
+                                    graphics.DrawString("Δ", new Font("Consolas", 12, System.Drawing.FontStyle.Bold), brush,
+                                    new PointF(x - 7f, y - 7f));
+                                }
+                                else
+                                {
+                                    graphics.DrawString("*", new Font("Consolas", 12, System.Drawing.FontStyle.Bold), brush,
+                                        new PointF(x - 7f, y - 7f));
+                                }
+                            }
                         }
 
                         if (noteD.IsSlideBreak)
@@ -923,7 +960,8 @@ public partial class MainWindow : Window
 
     private void BPMtap_MenuItem_Click(object? sender, RoutedEventArgs e)
     {
-        new BPMtap {
+        new BPMtap
+        {
             Owner = this
         }.Show();
     }
@@ -1165,7 +1203,7 @@ public partial class MainWindow : Window
     {
         if (IsLoading) return;
 
-        NoteNowText.Content = 
+        NoteNowText.Content =
             (FumenContent.Text[..FumenContent.CaretIndex] //.Replace("\r", "") //没区别
                                       .Count(o => o == '\n') + 1) + " 行";
 
@@ -1204,7 +1242,7 @@ public partial class MainWindow : Window
 
         //Console.WriteLine("SelectionChanged: " + GetRawFumenPosition());
         CursorTime = (float)time;
-        if (!isPlaying) draw_wave(); 
+        if (!isPlaying) draw_wave();
         // //selection changed 画什么wave
         // 爹你画着吧，我再也不动你了。
 
@@ -1340,7 +1378,7 @@ public partial class MainWindow : Window
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
         if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftAlt or Key.RightAlt)
             return false;
-        if (Keyboard.Modifiers is ModifierKeys.None or ModifierKeys.Shift) 
+        if (Keyboard.Modifiers is ModifierKeys.None or ModifierKeys.Shift)
             return false;
 
         var gesture = new KeyGesture(key, Keyboard.Modifiers);
@@ -1428,7 +1466,7 @@ public partial class MainWindow : Window
 
     private void FatalErrorLabel_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        SetRawFumenPosition(fatalError!.Position.x, fatalError.Position.y-1);
+        SetRawFumenPosition(fatalError!.Position.x, fatalError.Position.y - 1);
     }
 
     private void PlayBackSpeedSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1571,7 +1609,7 @@ public partial class MainWindow : Window
                 if (res == MessageBoxResult.No) return;
             }
 
-            TrackProcessor.AdjustMediaTime(converterPath, videoPath, 60 / bpm * beatsCount, offset, 
+            TrackProcessor.AdjustMediaTime(converterPath, videoPath, 60 / bpm * beatsCount, offset,
                 FreezeFrameCheckBox.IsChecked == true);
 
             OffsetTextBox.Text = "0";
