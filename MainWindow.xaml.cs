@@ -453,6 +453,8 @@ public partial class MainWindow : Window
                             pen.Color = Color.Gold;
                         else if (noteD.IsMine)
                             pen.Color = Color.LightGray;
+                        else if (noteD.IsForceStar)
+                            pen.Color = Color.DeepSkyBlue;
                         else
                             pen.Color = Color.LightPink;
 
