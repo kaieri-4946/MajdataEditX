@@ -29,12 +29,12 @@ public partial class MainWindow : Window
 
     private async void Play(PlayMethod playMethod = PlayMethod.Normal)
     {
-        //if (Op_Button.IsEnabled == false) return;  //?
+        // if (Op_Button.IsEnabled == false) return;  //?
 
         if (lastEditorState == EditorControlMethod.Start)
             return;
 
-        if (lastEditorState != EditorControlMethod.Stop) Stop();
+        // if (lastEditorState != EditorControlMethod.Stop) Stop();
 
         FumenContent.Focus();
         SaveFumen(false);
@@ -42,7 +42,7 @@ public partial class MainWindow : Window
         Op_Button.IsEnabled = false;
         isPlaying = true;
         isPlan2Stop = false;
-        PlayAndPauseButton.Content = "  ▌▌ ";
+        PlayAndPauseButton.Content = "❚❚";
 
         await SimaiProcess.Serialize(GetRawFumenText());
 
