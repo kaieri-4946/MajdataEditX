@@ -1,4 +1,5 @@
 ﻿using MajSimai;
+using MajSimai.Extensions.Checker;
 using System.IO;
 using System.Windows;
 
@@ -118,7 +119,9 @@ internal static class SimaiProcess
                 ErrorType.Serialize, 
                 new Position(e.Column, e.Line),
                 e.Message,
-                e.StackTrace));
+                e.StackTrace,
+                false,
+                Severity.Error));
         }
     }
 

@@ -24,6 +24,8 @@ public partial class MainWindow : Window
     {
         Stop();
 
+        FumenContent.DisableMarkup();
+
         // share
         if (IsShare) await ToggleChartShare();
 
@@ -49,6 +51,7 @@ public partial class MainWindow : Window
         set_loading(true);
 
         FumenContent.IsUndoEnabled = false;
+        FumenContent.DisableMarkup();
 
         // close all
         ClearWindow();
@@ -125,6 +128,7 @@ public partial class MainWindow : Window
         SyntaxCheck();
 
         FumenContent.IsUndoEnabled = true;
+        FumenContent.EnableMarkup();
 
         set_loading(false);
     }
@@ -135,6 +139,7 @@ public partial class MainWindow : Window
         {
             set_loading(true);
 
+            FumenContent.DisableMarkup();
             FumenContent.IsUndoEnabled = false;
 
             // close all
@@ -228,6 +233,7 @@ public partial class MainWindow : Window
             _shadowText = FumenContent.Text; // 影子文本和UI直接挂钩，没必要用不带\r的
 
             FumenContent.IsUndoEnabled = true; //清一下撤销栈
+            FumenContent.EnableMarkup();
 
             set_loading(false);
         }

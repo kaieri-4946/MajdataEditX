@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using MajSimai.Extensions.Checker;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -35,12 +36,16 @@ namespace MajdataEdit
         public Position Position { get; set; }
         public string Message { get; set; }
         public string? Detail { get; set; }
-        public Error(ErrorType _type, Position _position, string _message, string? _detail)
+        public bool IsFullNoteDiag { get; set; }
+        public Severity Severity { get; set; }
+        public Error(ErrorType _type, Position _position, string _message, string? _detail, bool isFullNoteDiag = false, Severity _severity = Severity.Error)
         {
             Type = _type;
             Position = _position;
             Message = _message;
             Detail = _detail;
+            IsFullNoteDiag = isFullNoteDiag;
+            Severity = _severity;
         }
     }
 

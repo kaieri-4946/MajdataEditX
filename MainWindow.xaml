@@ -4,12 +4,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lex="http://wpflocalizeextension.codeplex.com"
+    xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+    xmlns:ct="clr-namespace:MajdataEdit.TextEditor"
     lex:LocalizeDictionary.DesignCulture="zh-CN"
     lex:ResxLocalizationProvider.DefaultAssembly="MajdataEdit"
     lex:ResxLocalizationProvider.DefaultDictionary="Langs"
     x:Name="TheWindow" x:Class="MajdataEdit.MainWindow"
     mc:Ignorable="d"
-    Title="MajdataEdit" Height="589" Width="720.5" Loaded="Window_Loaded" Closing="Window_Closing" MinHeight="517"
+    Title="MajdataEdit" Height="768" Width="1366" Loaded="Window_Loaded" Closing="Window_Closing" MinHeight="540" MinWidth="1080" WindowState="Maximized"
     WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Storyboard x:Key="CoverHide">
@@ -30,46 +32,33 @@
                 <DiscreteObjectKeyFrame KeyTime="00:00:00.2000000" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
+        <Style x:Key="HeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{Binding Mode=OneWay, Source={StaticResource WindowBackground}}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="ItemStyle" TargetType="DataGridCell">
+            <Setter Property="Background" Value="{Binding Mode=OneWay, Source={StaticResource WindowBackground}}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{Binding Mode=OneWay, Source={StaticResource ButtonsBackground}}"/>
+            <Setter Property="Height" Value="21"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
     </Window.Resources>
 
     <Grid x:Name="Global_Grid" Margin="0" DragEnter="Grid_DragEnter" AllowDrop="True" Drop="Grid_Drop" Background="{StaticResource WindowBackground}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="0*"/>
-            <RowDefinition Height="501*"/>
-            <RowDefinition Height="0*"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="358*"/>
-            <ColumnDefinition Width="360*" />
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="ErrCount" Grid.Column="1" Content="0" 
-            Foreground="{DynamicResource ButtonForeground}" 
-            HorizontalAlignment="Left" HorizontalContentAlignment="Center"
-            Margin="44,201,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="53" Height="25" PreviewMouseDoubleClick="SyntaxCheckButton_Click"/>
-
-        <Label x:Name="ErrCount_Label" Content="Error" 
-               Foreground="{DynamicResource LabelForeground}" 
-               HorizontalAlignment="Left" HorizontalContentAlignment="Left"
-               Margin="2,201,0,0" Grid.RowSpan="2" VerticalAlignment="Top" Width="45" PreviewMouseDoubleClick="SyntaxCheckButton_Click" Grid.Column="1" RenderTransformOrigin="0.5,0.5">
-            <Label.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="0.647"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Label.RenderTransform>
-        </Label>
-
-        <Image x:Name="MusicWave" Height="74" VerticalAlignment="Bottom" MouseWheel="MusicWave_MouseWheel"
-               PreviewMouseLeftButtonDown="MusicWave_PreviewMouseLeftButtonDown" MouseMove="MusicWave_MouseMove"
-               Grid.ColumnSpan="3" SizeChanged="MusicWave_SizeChanged" Grid.RowSpan="2" Grid.Row="0" />
-        <Line StrokeThickness="3" Y2="56" Height="74" VerticalAlignment="Bottom" Stroke="Red" Y1="15"
-              HorizontalAlignment="Center" Width="45" Grid.ColumnSpan="2" Grid.RowSpan="2" Grid.Row="0" Grid.Column="1" Margin="43,0,0,0" />
-
-        <DockPanel Height="19" VerticalAlignment="Top" Grid.ColumnSpan="3" Grid.RowSpan="2" Background="{DynamicResource ButtonsBackground}">
+        <DockPanel VerticalAlignment="Top" Grid.ColumnSpan="3" Background="{DynamicResource ButtonsBackground}">
             <ProgressBar x:Name="Menu_ProcessStatus" IsIndeterminate="True"
                  DockPanel.Dock="Right" Background="{DynamicResource ButtonsBackground}"
                  Width="100" Height="12" 
@@ -118,7 +107,9 @@
                           IsEnabled="False" />
                     <Separator />
                     <MenuItem Header="{lex:Loc EditorSetting}" Click="MenuItem_EditorSetting_Click" />
-                    <MenuItem Header="{lex:Loc RemapViewer}" Click="Menu_ResetViewWindow" />
+                    <MenuItem x:Name="ResetView"  Header="{lex:Loc RemapViewer}" Click="Menu_ResetViewWindow" IsEnabled="false" />
+                    <MenuItem x:Name="UndockView" Header="Undock View Window" Click="Menu_UndockViewWindow" />
+                    <MenuItem x:Name="RedockView" Header="Redock View Window" Click="Menu_RedockViewWindow" IsEnabled="false" />
                 </MenuItem>
                 <MenuItem Header="{lex:Loc Tools}" Foreground="{DynamicResource ButtonForeground}"
                       Template="{DynamicResource DarkMenuItem}">
@@ -145,257 +136,426 @@
             </Menu>
         </DockPanel>
 
-        <Image x:Name="FFTImage" HorizontalAlignment="Right" Margin="0,0,14,91" Width="254" Height="255"
-               VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Grid.Column="2" Grid.Row="1">
-            <Image.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform />
-                    <SkewTransform />
-                    <RotateTransform Angle="-90" />
-                    <TranslateTransform />
-                </TransformGroup>
-            </Image.RenderTransform>
-        </Image>
-        <CheckBox x:Name="FollowPlayCheck" Content="{lex:Loc TextFollow}" HorizontalAlignment="Left" Height="21"
-                  Margin="6,0,0,128" VerticalAlignment="Bottom" Width="87"
-                  Foreground="{DynamicResource ButtonForeground}" HorizontalContentAlignment="Right"
-                  Click="FollowPlayCheck_Click" Background="{DynamicResource ButtonsBackground}"
-                  Template="{DynamicResource DarkCheck}" Grid.Row="1" Grid.Column="1" />
-        <TextBox x:Name="FumenContent"
-                AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap"
-                BorderThickness="1" Foreground="#FFE8E8E8" 
-                Padding="0,5" Margin="102,29,10,90" 
-                FontFamily="Consolas" FontSize="14" 
-                FocusVisualStyle="{x:Null}" 
-                VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto"
-                InputMethod.IsInputMethodEnabled="False"
-                AutoWordSelection="False"
-                ScrollViewer.ScrollChanged = "FumenContent_ScrollChanged"
-                TextChanged="FumenContent_TextChanged"
-                SelectionChanged="FumenContent_SelectionChanged" 
-                PreviewKeyDown="FumenContent_OnPreviewKeyDown" 
-                Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" PreviewMouseWheel="FumenContent_PreviewMouseWheel">
-            <TextBox.Background>
-                <SolidColorBrush Color="#FF050505" Opacity="0.3" />
-            </TextBox.Background>
-            <TextBox.Resources>
-                <Style TargetType="{x:Type TextBox}">
-                    <Setter Property="Block.LineHeight" Value="28.5"/>
-                </Style>
-            </TextBox.Resources>
-        </TextBox>
-        <Canvas x:Name="CursorOverlay" 
+        <DockPanel Grid.Row="1" LastChildFill="True" Background="{DynamicResource WindowBackground}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="520" />
+                    <ColumnDefinition Width="2" />
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2"/>
+                    <ColumnDefinition Width="150" MinWidth="150" MaxWidth="150"/>
+                </Grid.ColumnDefinitions>
+
+                <Border x:Name="ViewerColumnBorder" Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource ButtonsBackground}">
+                    <Grid x:Name="ViewerColumnGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="520" />
+                            <RowDefinition Height="2" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Viewbox Grid.Row="0" Grid.Column="0" Stretch="Fill">
+                            <Border x:Name="ViewerBorder" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="520" Width="520" Background="{DynamicResource ButtonsBackground}">
+                                <WindowsFormsHost Name="FormsHost">
+                                    <wf:Panel x:Name="UnityPanel" Dock="Fill" />
+                                </WindowsFormsHost>
+                            </Border>
+                        </Viewbox>
+
+                        <GridSplitter Grid.Row="1" 
+                            Height="2" 
+                            HorizontalAlignment="Stretch" 
+                            VerticalAlignment="Stretch" 
+                            Background="#D3D3D3"
+                            ResizeBehavior="PreviousAndNext"/>
+
+                        <Border x:Name="ErrorViewBorder" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{DynamicResource ButtonsBackground}">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="21"/>
+                                    <RowDefinition Height="*" MinHeight="42"/>
+                                    <RowDefinition Height="2"/>
+                                    <RowDefinition Height="21" MinHeight="21"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock x:Name="ErrCount" Text="Error List (0 error(s))" Foreground="{DynamicResource LabelForeground}" Grid.Row="0"/>
+
+                                <Border Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                                    <DataGrid x:Name="ErrorListView" Margin="-10,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                        VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch"
+                                        Background="{DynamicResource WindowBackground}"
+                                        CanUserResizeColumns="False" CanUserSortColumns="False" CanUserReorderColumns="False" AutoGenerateColumns="False" IsReadOnly="True" 
+                                        SelectionChanged="ErrorListView_SelectionChanged" MouseDoubleClick="ErrorListView_MouseDoubleClick">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn CanUserResize="False" CanUserReorder="False" IsReadOnly="True" Visibility="Visible" Width="50" Binding="{Binding Type}" HeaderStyle="{Binding Mode=OneWay, Source={StaticResource HeaderStyle}}" CellStyle="{Binding Mode=OneWay, Source={StaticResource ItemStyle}}"/>
+                                            <DataGridTextColumn CanUserResize="False" CanUserReorder="False" IsReadOnly="True" Visibility="Visible" Width="60" Header="{lex:Loc Key=Position}" Binding="{Binding Position}" HeaderStyle="{Binding Mode=OneWay, Source={StaticResource HeaderStyle}}" CellStyle="{Binding Mode=OneWay, Source={StaticResource ItemStyle}}"/>
+                                            <DataGridTextColumn CanUserResize="False" CanUserReorder="False" IsReadOnly="True" Visibility="Visible" Width="*" Header="{lex:Loc Key=Message}" Binding="{Binding Message}" HeaderStyle="{Binding Mode=OneWay, Source={StaticResource HeaderStyle}}" CellStyle="{Binding Mode=OneWay, Source={StaticResource ItemStyle}}"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Border>
+
+                                <GridSplitter Grid.Row="2" 
+                                    Height="2" 
+                                    HorizontalAlignment="Stretch" 
+                                    Background="#D3D3D3"
+                                    ResizeBehavior="PreviousAndNext"/>
+
+                                <TextBox x:Name="txtDetail" Grid.Row="3" VerticalAlignment="Stretch" TextWrapping="Wrap" Background="{Binding Mode=OneWay, Source={StaticResource ButtonsBackground}}" Foreground="#FFCFCDC5" IsReadOnly="True"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <GridSplitter Grid.Column="1" 
+                      Width="2" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" 
+                      Background="#D3D3D3"
+                      ResizeBehavior="PreviousAndNext"/>
+
+                <Border x:Name="EditorColumnBorder" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid x:Name="EditorColumnGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="90" MinHeight="90" MaxHeight="90"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Border>
+                            <Grid>
+                                <ct:CustomTextEditor x:Name="FumenContent"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    MinHeight="100"
+                                    MinWidth="100"
+                                    AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap"
+                                    BorderThickness="1" Foreground="#FFE8E8E8" 
+                                    Padding="0,5" Margin="0,0,0,0" 
+                                    FontFamily="Cascadia Mono" FontSize="14"
+                                    FocusVisualStyle="{x:Null}" 
+                                    VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto"
+                                    InputMethod.IsInputMethodEnabled="False"
+                                    AutoWordSelection="False"
+                                    ScrollViewer.ScrollChanged = "FumenContent_ScrollChanged"
+                                    TextChanged="FumenContent_TextChanged"
+                                    SelectionChanged="FumenContent_SelectionChanged" 
+                                    PreviewKeyDown="FumenContent_OnPreviewKeyDown" 
+                                    PreviewMouseWheel="FumenContent_PreviewMouseWheel">
+                                    <ct:CustomTextEditor.Resources>
+                                        <Style TargetType="{x:Type TextBox}">
+                                            <Setter Property="Block.LineHeight" Value="28.5"/>
+                                        </Style>
+                                    </ct:CustomTextEditor.Resources>
+                                </ct:CustomTextEditor>
+                                <Image x:Name="FFTImage" Margin="0,0,0,0" HorizontalAlignment="Stretch" Height="255" IsHitTestVisible="False"
+                                    VerticalAlignment="Bottom" RenderTransformOrigin="0.5,0.5" Grid.Row="0" Stretch="Fill">
+                                </Image>
+                            </Grid>
+                        </Border>
+
+                        <GridSplitter Grid.Row="1" 
+                            Height="2" 
+                            HorizontalAlignment="Stretch" 
+                            VerticalAlignment="Stretch" 
+                            Background="#D3D3D3"
+                            ResizeBehavior="PreviousAndNext"/>
+
+                        <Border Grid.Row="2" MinHeight="90">
+                            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <TextBlock Text="Timeline" Foreground="{DynamicResource LabelForeground}"/>
+
+                                <Grid>
+                                    <Image x:Name="MusicWave" Height="74" VerticalAlignment="Bottom" MouseWheel="MusicWave_MouseWheel"
+                                        PreviewMouseLeftButtonDown="MusicWave_PreviewMouseLeftButtonDown" MouseMove="MusicWave_MouseMove"
+                                        SizeChanged="MusicWave_SizeChanged" Stretch="Fill"/>
+
+                                    <Line StrokeThickness="3" Y1="15" Y2="56" Height="74" VerticalAlignment="Bottom" HorizontalAlignment="Center" Stroke="Red"/>
+
+                                    <Button x:Name="WaveViewZoomIn" Content="+" HorizontalAlignment="Left" Height="24" Margin="7,0,0,40"
+                                        VerticalAlignment="Bottom" Width="24" Click="WaveViewZoomIn_Click"
+                                        Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                                        Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
+                                    <Button x:Name="WaveViewZoomOut" Content="-" HorizontalAlignment="Left" Height="24" Margin="7,0,0,9"
+                                        VerticalAlignment="Bottom" Width="24" Click="WaveViewZoomOut_Click"
+                                        Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                                        Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
+
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <GridSplitter Grid.Column="3" 
+                      Width="2" 
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch" 
+                      Background="#D3D3D3"
+                      ResizeBehavior="PreviousAndNext"/>
+                <Border x:Name="ToolboxBorder" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MinWidth="150" DockPanel.Dock="Right" Background="{DynamicResource ButtonsBackground}" BorderBrush="Gray" BorderThickness="1" Grid.Column="4">
+                    <Grid x:Name="ToolboxGrid">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                            <ColumnDefinition Width="25*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label x:Name="TimeLabel" Grid.ColumnSpan="6" Content="0:00" Height="75" Margin="1,0,0,0"
+                            VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="{DynamicResource ButtonForeground}" FontFamily="Bahnschrift Light" FontSize="50"
+                            VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Grid.Column="2"/>
+
+                        <ComboBox x:Name="LevelSelector" Margin="10,5" SelectionChanged="ComboBox_SelectionChanged" Height="21" VerticalAlignment="Top"
+                            Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                            Template="{DynamicResource DarkComboBox}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="8">
+                            <ComboBoxItem Content="EASY" />
+                            <ComboBoxItem Content="BASIC" />
+                            <ComboBoxItem Content="ADVANCED" />
+                            <ComboBoxItem Content="EXPERT" />
+                            <ComboBoxItem Content="MASTER" />
+                            <ComboBoxItem Content="Re:MASTER" />
+                            <ComboBoxItem Content="ORIGINAL" />
+                        </ComboBox>
+
+                        <Label Content="{lex:Loc Difficulty}" Height="25" Margin="5,5"
+                            VerticalAlignment="Center" Foreground="{DynamicResource LabelForeground}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" />
+                        <TextBox x:Name="LevelTextBox" Height="25" Margin="6,5,5,0" TextWrapping="Wrap"
+                            VerticalAlignment="Top" VerticalContentAlignment="Center"
+                            TextChanged="LevelTextBox_TextChanged" Background="{DynamicResource ButtonsBackground}"
+                            Foreground="{DynamicResource ButtonForeground}" HorizontalContentAlignment="Center" Grid.Row="2" Grid.Column="5" Grid.ColumnSpan="3" />
+
+                        <Label Content="{lex:Loc Offset}" Height="25" Margin="5,5"
+                            VerticalAlignment="Center" Foreground="{DynamicResource LabelForeground}" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="5" />
+                        <TextBox x:Name="OffsetTextBox" Height="25" Margin="5,5" TextWrapping="Wrap"
+                            VerticalAlignment="Center" VerticalContentAlignment="Center"
+                            Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                            HorizontalContentAlignment="Left"
+                            MouseWheel="OffsetTextBox_MouseWheel" Grid.Row="3" Grid.Column="5" Grid.ColumnSpan="3" LostFocus="OffsetTextBox_LostFocus" PreviewKeyDown="OffsetTextBox_PreviewKeyDown" />
+
+                        <ComboBox x:Name="PlayBackSpeedSelector" Margin="10,5" Height="21" VerticalAlignment="Top" SelectedIndex="4"
+                            Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                            Template="{DynamicResource DarkComboBox}" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="8" SelectionChanged="PlayBackSpeedSelector_SelectionChanged">
+                            <ComboBoxItem Content="0.10x" />
+                            <ComboBoxItem Content="0.25x" />
+                            <ComboBoxItem Content="0.50x" />
+                            <ComboBoxItem Content="0.75x" />
+                            <ComboBoxItem Content="1.00x" />
+                            <ComboBoxItem Content="1.50x" />
+                            <ComboBoxItem Content="2.00x" />
+                        </ComboBox>
+
+                        <Label Content="{lex:Loc Brightness}" MouseUp="SettingLabel_MouseUp" Height="25"
+                            Margin="5,5" VerticalAlignment="Center" Foreground="{DynamicResource LabelForeground}"
+                            ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="5" />
+                        <Label x:Name="ViewerCover" MouseUp="SettingLabel_MouseUp" Height="25" Margin="5,5" Content="0.6"
+                            VerticalAlignment="Top" VerticalContentAlignment="Top"
+                            Foreground="{DynamicResource ButtonForeground}" HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="6" Grid.Column="5" Grid.ColumnSpan="3"/>
+
+                        <Label Content="{lex:Loc Speed}" MouseUp="SettingLabel_MouseUp" Height="25"
+                            Margin="5,5" VerticalAlignment="Top" Foreground="{DynamicResource LabelForeground}"
+                            ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="5" />
+                        <Label x:Name="ViewerSpeed" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="25"
+                            Margin="5,5" Content="7.0" VerticalAlignment="Center"
+                            VerticalContentAlignment="Center" Foreground="{DynamicResource ButtonForeground}"
+                            HorizontalContentAlignment="Center" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="7" Grid.Column="5" Grid.ColumnSpan="3" />
+
+                        <Label Content="{lex:Loc TouchSpeed}" MouseUp="SettingLabel_MouseUp" Height="25"
+                            Margin="5,5" VerticalAlignment="Top" Foreground="{DynamicResource LabelForeground}"
+                            ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="5"/>
+                        <Label x:Name="ViewerTouchSpeed" MouseUp="SettingLabel_MouseUp" Height="25"
+                            Margin="5,5" Content="7.0" VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                            VerticalContentAlignment="Center" Foreground="{DynamicResource ButtonForeground}"
+                            HorizontalContentAlignment="Left" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="8" Grid.Column="5" Grid.ColumnSpan="3"/>
+
+                        <Button x:Name="Op_Button" Content="{lex:Loc RecMode}" Height="25" Margin="5,5"
+                            VerticalAlignment="Top" Click="Op_Button_Click"
+                            HorizontalAlignment="Stretch" Template="{DynamicResource DarkButton}"
+                            Foreground="{DynamicResource ButtonForeground}" Background="{DynamicResource ButtonsBackground}"
+                            ToolTip="{lex:Loc RecordModeDiscrp}" Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="8" />
+
+                        <CheckBox x:Name="FollowPlayCheck" Content="{lex:Loc TextFollow}" HorizontalAlignment="Left" Height="25"
+                            Margin="10,5" VerticalAlignment="Bottom"
+                            Foreground="{DynamicResource ButtonForeground}" HorizontalContentAlignment="Right"
+                            Click="FollowPlayCheck_Click" Background="{DynamicResource ButtonsBackground}"
+                            Template="{DynamicResource DarkCheck}" Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="8" />
+
+                        <Button x:Name="StopButton" Content="◼" HorizontalAlignment="Stretch" Height="38" Margin="5,5"
+                            VerticalAlignment="Bottom" Width="38" Click="StopButton_Click"
+                            Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                            Template="{DynamicResource DarkButton}" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" />
+
+                        <Button x:Name="PlayAndPauseButton" Content="▶" HorizontalAlignment="Stretch" Margin="5,5" Width="38"
+                            Click="PlayAndPauseButton_Click" Height="38" VerticalAlignment="Bottom"
+                            Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
+                            Template="{DynamicResource DarkButton}" Grid.Row="11" Grid.Column="4" Grid.ColumnSpan="3" />
+                    </Grid>
+                </Border>
+
+                <Canvas x:Name="CursorOverlay" 
                 IsHitTestVisible="False" 
                 ClipToBounds="True" 
                 Margin="102,29,10,90" 
-                Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="1"/>
-        <Label x:Name="FatalErrorLabel" Height="23" Margin="102,29,10,90" VerticalAlignment="Bottom"
+                Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="1">
+                </Canvas>
+                <Label x:Name="FatalErrorLabel" Height="23" Margin="102,29,10,90" VerticalAlignment="Bottom"
                Grid.ColumnSpan="2" Grid.Row="1" Grid.Column="1" MouseDown="FatalErrorLabel_MouseDown" Foreground="#FFFD2E2E" />
-        <Label x:Name="TimeLabel" Content="0:00" HorizontalAlignment="Left" Height="64" Margin="0,16,0,0"
-               VerticalAlignment="Top" Width="105" Foreground="{DynamicResource ButtonForeground}" FontFamily="Bahnschrift Light" FontSize="50"
-               VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Grid.Row="1" Grid.ColumnSpan="2" />
-        <ComboBox x:Name="LevelSelector" Margin="7,116,0,0" SelectionChanged="ComboBox_SelectionChanged"
-                  HorizontalAlignment="Left" Width="87" Height="21" VerticalAlignment="Top"
-                  Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                  Template="{DynamicResource DarkComboBox}" Grid.Row="1" Grid.Column="1">
 
-            <ComboBoxItem Content="EASY" />
-            <ComboBoxItem Content="BASIC" />
-            <ComboBoxItem Content="ADVANCED" />
-            <ComboBoxItem Content="EXPERT" />
-            <ComboBoxItem Content="MASTER" />
-            <ComboBoxItem Content="Re:MASTER" />
-            <ComboBoxItem Content="ORIGINAL" />
-        </ComboBox>
-        <Button x:Name="WaveViewZoomIn" Content="+" HorizontalAlignment="Left" Height="24" Margin="7,0,0,40"
-                VerticalAlignment="Bottom" Width="24" Click="WaveViewZoomIn_Click"
-                Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
-        <Button x:Name="WaveViewZoomOut" Content="-" HorizontalAlignment="Left" Height="24" Margin="7,0,0,9"
-                VerticalAlignment="Bottom" Width="24" Click="WaveViewZoomOut_Click"
-                Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
-        <Label Content="{lex:Loc Difficulty}" HorizontalAlignment="Left" Height="25" Margin="2,142,0,0"
-               VerticalAlignment="Top" Width="45" Foreground="{DynamicResource LabelForeground}" Grid.Row="1" Grid.Column="1" />
-        <TextBox x:Name="LevelTextBox" HorizontalAlignment="Left" Height="25" Margin="47,142,0,0" TextWrapping="Wrap"
-                 VerticalAlignment="Top" Width="46" VerticalContentAlignment="Center"
-                 TextChanged="LevelTextBox_TextChanged" Background="{DynamicResource ButtonsBackground}"
-                 Foreground="{DynamicResource ButtonForeground}" HorizontalContentAlignment="Center" Grid.Row="1" Grid.Column="1" />
-        <Label Content="{lex:Loc Offset}" HorizontalAlignment="Left" Height="25" Margin="2,172,0,0"
-               VerticalAlignment="Top" Width="45" Foreground="{DynamicResource LabelForeground}" Grid.Row="1" Grid.Column="1" />
-        <TextBox x:Name="OffsetTextBox" HorizontalAlignment="Left" Height="25" Margin="47,172,0,0" TextWrapping="Wrap"
-                 VerticalAlignment="Top" Width="46" VerticalContentAlignment="Center"
-                 Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                 HorizontalContentAlignment="Center"
-                 MouseWheel="OffsetTextBox_MouseWheel" Grid.Row="1" Grid.Column="1" LostFocus="OffsetTextBox_LostFocus" PreviewKeyDown="OffsetTextBox_PreviewKeyDown" />
-        <ComboBox x:Name="PlayBackSpeedSelector" Margin="7,241,0,0" 
-                  HorizontalAlignment="Left" Width="87" Height="21" VerticalAlignment="Top" SelectedIndex="4"
-                  Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                  Template="{DynamicResource DarkComboBox}" Grid.Row="1" Grid.Column="1" SelectionChanged="PlayBackSpeedSelector_SelectionChanged">
-            <ComboBoxItem Content="0.10x" />
-            <ComboBoxItem Content="0.25x" />
-            <ComboBoxItem Content="0.50x" />
-            <ComboBoxItem Content="0.75x" />
-            <ComboBoxItem Content="1.00x" />
-            <ComboBoxItem Content="1.50x" />
-            <ComboBoxItem Content="2.00x" />
-        </ComboBox>
-        <Button x:Name="PlayAndPauseButton" Content="▶" HorizontalAlignment="Left" Margin="55,0,0,90" Width="38"
-                Click="PlayAndPauseButton_Click" Height="38" VerticalAlignment="Bottom"
-                Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
-        <Button x:Name="StopButton" Content="◼" HorizontalAlignment="Left" Height="38" Margin="6,0,0,90"
-                VerticalAlignment="Bottom" Width="38" Click="StopButton_Click"
-                Background="{DynamicResource ButtonsBackground}" Foreground="{DynamicResource ButtonForeground}"
-                Template="{DynamicResource DarkButton}" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="NoteNowText" Content="行" HorizontalAlignment="Left" Margin="0,73,0,0" VerticalAlignment="Top"
-               Foreground="{DynamicResource LabelForeground}" Width="105" HorizontalContentAlignment="Center" Height="25" Grid.Row="1" Grid.ColumnSpan="2" />
-        <Button x:Name="Op_Button" Content="{lex:Loc RecMode}" Height="30" Margin="6,0,0,165"
-                VerticalAlignment="Bottom" RenderTransformOrigin="1.1,0.25" Click="Op_Button_Click"
-                HorizontalAlignment="Left" Width="87" Template="{DynamicResource DarkButton}"
-                Foreground="{DynamicResource ButtonForeground}" Background="{DynamicResource ButtonsBackground}"
-                ToolTip="{lex:Loc RecordModeDiscrp}" Grid.Row="1" Grid.Column="1" />
-        <Label Content="{lex:Loc TouchSpeed}" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="24"
-               Margin="2,0,0,200" VerticalAlignment="Bottom" Width="80" Foreground="{DynamicResource LabelForeground}"
-               RenderTransformOrigin="9.667,-2.284" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="ViewerTouchSpeed" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="24"
-               Margin="62,0,0,200" Content="7.0" VerticalAlignment="Bottom" Width="35"
-               VerticalContentAlignment="Center" Foreground="{DynamicResource ButtonForeground}"
-               HorizontalContentAlignment="Center" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Label Content="{lex:Loc Speed}" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="24"
-               Margin="2,0,0,226" VerticalAlignment="Bottom" Width="60" Foreground="{DynamicResource LabelForeground}"
-               RenderTransformOrigin="9.667,-2.284" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="ViewerSpeed" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="24"
-               Margin="62,0,0,226" Content="7.0" VerticalAlignment="Bottom" Width="35"
-               VerticalContentAlignment="Center" Foreground="{DynamicResource ButtonForeground}"
-               HorizontalContentAlignment="Center" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Label Content="{lex:Loc Brightness}" MouseUp="SettingLabel_MouseUp" HorizontalAlignment="Left" Height="24"
-               Margin="2,0,0,250" VerticalAlignment="Bottom" Width="60" Foreground="{DynamicResource LabelForeground}"
-               RenderTransformOrigin="9.667,-2.284" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Label x:Name="ViewerCover" MouseUp="SettingLabel_MouseUp" Height="24" Margin="62,0,0,250" Content="0.6"
-               VerticalAlignment="Bottom" VerticalContentAlignment="Center"
-               Foreground="{DynamicResource ButtonForeground}" HorizontalAlignment="Left" Width="35"
-               HorizontalContentAlignment="Center" ToolTip="{lex:Loc SpeedSettingTooltip}" Grid.Row="1" Grid.Column="1" />
-        <Grid x:Name="FindGrid" Margin="0,29,28,0" Grid.Column="2" HorizontalAlignment="Right" Width="272" Height="69"
+                <Grid x:Name="FindGrid" Margin="0,29,28,0" Grid.Column="2" HorizontalAlignment="Right" Width="272" Height="69"
               VerticalAlignment="Top" Visibility="Collapsed" Grid.Row="1">
-            <Grid.Background>
-                <SolidColorBrush Color="Black" Opacity="0.2" />
-            </Grid.Background>
-            <TextBox x:Name="InputText" HorizontalAlignment="Left" Height="22" Margin="10,10,0,0" TextWrapping="Wrap"
+                    <Grid.Background>
+                        <SolidColorBrush Color="Black" Opacity="0.2" />
+                    </Grid.Background>
+                    <TextBox x:Name="InputText" HorizontalAlignment="Left" Height="22" Margin="5,5" TextWrapping="Wrap"
                      VerticalAlignment="Top" Width="231" VerticalContentAlignment="Center" />
-            <Image x:Name="Find_icon" HorizontalAlignment="Left" Height="22" Margin="246,10,0,0"
+                    <Image x:Name="Find_icon" HorizontalAlignment="Left" Height="22" Margin="246,10,0,0"
                    VerticalAlignment="Top" Width="26" Source="Resources/outline_search_white_24dp.png"
                    MouseDown="Find_icon_MouseDown" ToolTip="{lex:Loc FindNext}" />
-            <Image x:Name="Replace_icon" HorizontalAlignment="Left" Height="22" Margin="246,37,0,0"
+                    <Image x:Name="Replace_icon" HorizontalAlignment="Left" Height="22" Margin="246,37,0,0"
                    VerticalAlignment="Top" Width="26" Source="Resources/outline_find_replace_white_24dp.png"
                    MouseDown="Replace_icon_MouseDown" ToolTip="{lex:Loc ReplaceNext}" />
-            <Label x:Name="FindClose" Content="^" Height="19" Margin="127,53,127,-3" VerticalAlignment="Top"
+                    <Label x:Name="FindClose" Content="^" Height="19" Margin="127,53,127,-3" VerticalAlignment="Top"
                    FontSize="11" FontWeight="Bold" Foreground="{DynamicResource ButtonForeground}" MouseDown="FindClose_MouseDown" />
-            <TextBox x:Name="ReplaceText" HorizontalAlignment="Left" Height="22" Margin="10,37,0,0" TextWrapping="Wrap"
+                    <TextBox x:Name="ReplaceText" HorizontalAlignment="Left" Height="22" Margin="10,37,0,0" TextWrapping="Wrap"
                      VerticalAlignment="Top" Width="231" VerticalContentAlignment="Center" />
-        </Grid>
-        <StackPanel x:Name="OverrideModeTipsPopup" Margin="102,29,0,0" HorizontalAlignment="Left"
+                </Grid>
+                <StackPanel x:Name="OverrideModeTipsPopup" Margin="102,29,0,0" HorizontalAlignment="Left"
                     VerticalAlignment="Top" Orientation="Horizontal" Visibility="Collapsed" Grid.Row="1" Height="auto" Width="auto" Grid.Column="1">
-            <StackPanel.Background>
-                <SolidColorBrush Color="Black" Opacity="0.8" />
-            </StackPanel.Background>
-            <Label Content="{lex:Loc OverwriteMode}" Foreground="{DynamicResource ButtonForeground}" />
-            <Label Foreground="{DynamicResource HelperForeground}" Margin="3,0,0,0">
-                <Label.ToolTip>
-                    <ToolTip>
-                        <StackPanel>
-                            <TextBlock Text="{lex:Loc Key=OverwriteModeTooltip}" />
-                        </StackPanel>
-                    </ToolTip>
-                </Label.ToolTip>
-                <TextBlock TextDecorations="Underline" FontSize="10" Text="{lex:Loc Key=WhatsThis}" />
-            </Label>
-        </StackPanel>
-        <Rectangle x:Name="Cover" Fill="#FF1F1F1F" Margin="0,18,0,0" Stroke="Black" Grid.ColumnSpan="3" Grid.RowSpan="2" Grid.Row="1" Opacity="1" d:IsHidden="True"/>
-        <StatusBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Height="20" Background="{StaticResource WindowBackground}">
-            <StatusBarItem>
-                <TextBlock x:Name="ShareStatus" Foreground="{StaticResource HelperForeground}"/>
-            </StatusBarItem>
-        </StatusBar>
+                    <StackPanel.Background>
+                        <SolidColorBrush Color="Black" Opacity="0.8" />
+                    </StackPanel.Background>
+                    <Label Content="{lex:Loc OverwriteMode}" Foreground="{DynamicResource ButtonForeground}" />
+                    <Label Foreground="{DynamicResource HelperForeground}" Margin="3,0,0,0">
+                        <Label.ToolTip>
+                            <ToolTip>
+                                <StackPanel>
+                                    <TextBlock Text="{lex:Loc Key=OverwriteModeTooltip}" />
+                                </StackPanel>
+                            </ToolTip>
+                        </Label.ToolTip>
+                        <TextBlock TextDecorations="Underline" FontSize="10" Text="{lex:Loc Key=WhatsThis}" />
+                    </Label>
+                </StackPanel>
 
-        <Popup x:Name="FcpxmlFpsPopup"
+                <Popup x:Name="FcpxmlFpsPopup"
                Placement="Center" 
                PlacementTarget="{Binding ElementName=MainMenu}"
                StaysOpen="False"
                AllowsTransparency="True"
                Opened="FcpxmlFpsPopup_Opened">
 
-            <Border Background="{DynamicResource ButtonsBackground}"
+                    <Border Background="{DynamicResource ButtonsBackground}"
                     BorderBrush="{DynamicResource ButtonForeground}"
                     BorderThickness="1"
                     Padding="12"
                     CornerRadius="8">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock Text="{lex:Loc InputFPS}" 
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{lex:Loc InputFPS}" 
                                HorizontalAlignment="Center"
                                FontWeight="Bold"
                                Margin="0,0,0,10"
                                Foreground="{DynamicResource ButtonForeground}"/>
 
-                    <StackPanel Orientation="Horizontal">
-                        <TextBox x:Name="FcpxmlFpsBox"
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="FcpxmlFpsBox"
                                  Width="80" Height="25"
                                  VerticalContentAlignment="Center"
                                  Margin="0,0,8,0"
                                  Text="60" KeyDown="FcpxmlFpsBox_KeyDown" />
 
-                        <Button Content="OK"
+                                <Button Content="OK"
                                 Padding="10,2"
                                 Click="ConfirmFps_Click"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Popup>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Popup>
 
-        <Popup x:Name="MediaQuickProcessPopup"
+                <Popup x:Name="MediaQuickProcessPopup"
                Placement="Center" 
                PlacementTarget="{Binding ElementName=MainMenu}"
                StaysOpen="False"
                AllowsTransparency="True" 
                Opened="MediaQuickProcessPopup_Opened">
 
-            <Border Background="{DynamicResource ButtonsBackground}"
+                    <Border Background="{DynamicResource ButtonsBackground}"
                     BorderBrush="{DynamicResource ButtonForeground}"
                     BorderThickness="1"
                     Padding="12"
                     CornerRadius="8">
-                <StackPanel Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{lex:Loc BeatsCount}" 
+                        <StackPanel Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{lex:Loc BeatsCount}" 
                                HorizontalAlignment="Center"
                                FontWeight="Bold"
                                Margin="0,0,0,10"
                                Foreground="{DynamicResource ButtonForeground}"/>
-                        <TextBox x:Name="BeatsCountBox"
+                                <TextBox x:Name="BeatsCountBox"
                                  Width="50" Height="25"
                                  VerticalContentAlignment="Center" 
                                  HorizontalAlignment="Right"
                                  Margin="20,0,0,0"
                                  Text="4" 
                                  PreviewKeyDown="BeatsCountBox_PreviewKeyDown"/>
-                    </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{lex:Loc FreezeFrame}"
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{lex:Loc FreezeFrame}"
                                HorizontalAlignment="Center"
                                FontWeight="Bold"
                                Margin="0,0,0,10"
                                Foreground="{DynamicResource ButtonForeground}"/>
-                        <CheckBox x:Name="FreezeFrameCheckBox"
+                                <CheckBox x:Name="FreezeFrameCheckBox"
                                  VerticalContentAlignment="Center"
                                  HorizontalAlignment="Right"
                                  Margin="20,0,8,0"/>
-                    </StackPanel>
+                            </StackPanel>
 
-                    <Button Content="OK" Padding="10,2" Margin="20,0,20,0" 
+                            <Button Content="OK" Padding="10,2" Margin="20,0,20,0" 
                             Click="ConfilmMediaQuickProcess_Click"/>
-                </StackPanel>
-            </Border>
-        </Popup>
+                        </StackPanel>
+                    </Border>
+                </Popup>
+            </Grid>
+        </DockPanel>
+        <Rectangle x:Name="Cover" Fill="#FF1F1F1F" Margin="0,0,0,0" Stroke="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ColumnSpan="5" Grid.RowSpan="1" Grid.Row="1" Opacity="1" d:IsHidden="True"/>
+        <StatusBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Height="20" Background="{StaticResource WindowBackground}">
+            <StatusBarItem>
+                <TextBlock x:Name="ShareStatus" Foreground="{StaticResource HelperForeground}"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>

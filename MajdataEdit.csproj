@@ -1,89 +1,94 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net6.0-windows7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
-
-        <Version>5.1.8</Version>
-        <Company></Company>
-        <Authors>bbben</Authors>
-        <PackageProjectUrl>https://github.com/re-poem/MajdataEditX</PackageProjectUrl>
-        <Copyright>Copyright © 2021</Copyright>
-        <ApplicationIcon>favicon.ico</ApplicationIcon>
-        <UseApplicationTrust>false</UseApplicationTrust>
-        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <PlatformTarget>x64</PlatformTarget>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <Optimize>False</Optimize>
-    </PropertyGroup>
-    <ItemGroup>
-      <None Remove="Resources\bg_dummy.jpg" />
-      <None Remove="Resources\outline_find_replace_white_24dp.png" />
-      <None Remove="Resources\outline_search_white_24dp.png" />
-      <None Remove="Resources\SmoothSlideWhatsThis.jpg" />
-	  <None Include="server.pfx">
-	  	<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-    </ItemGroup>
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="DiffMatchPatch" Version="1.0.3" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.0" />
-        <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
-        <PackageReference Include="pythonnet" Version="3.0.5" />
-        <PackageReference Include="radio42.Bass.Net.core" Version="2.4.17.5" />
-        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Semver" Version="2.3.0" />
-        <PackageReference Include="TagLibSharp" Version="2.3.0" />
-        <PackageReference Include="WPFLocalizeExtension" Version="3.10.0" />
-        <PackageReference Include="XAMLMarkupExtensions" Version="2.1.3" />
-    </ItemGroup>
-    <ItemGroup>
-        <ContentWithTargetPath Include="bass.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>bass.dll</TargetPath>
-        </ContentWithTargetPath>
-        <ContentWithTargetPath Include="bass_fx.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>bass_fx.dll</TargetPath>
-        </ContentWithTargetPath>
-        <ContentWithTargetPath Include="slide_time.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>slide_time.json</TargetPath>
-        </ContentWithTargetPath>
-                <ContentWithTargetPath Include="LICENSE">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>LICENSE_MajdataEdit</TargetPath>
-        </ContentWithTargetPath>
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\MajSimai.Extensions\MajSimai.Extensions\MajSimai.Extensions.csproj" />
-      <ProjectReference Include="..\MajSimaiX\MajSimai.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Resource Include="Resources\bg_dummy.jpg" />
-      <Resource Include="Resources\outline_find_replace_white_24dp.png" />
-      <Resource Include="Resources\outline_search_white_24dp.png" />
-      <Resource Include="Resources\SmoothSlideWhatsThis.jpg" />
-    </ItemGroup>
-    <ItemGroup>
-      <Compile Update="Properties\Settings.Designer.cs">
-        <DesignTimeSharedInput>True</DesignTimeSharedInput>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Settings.settings</DependentUpon>
-      </Compile>
-    </ItemGroup>
-    <ItemGroup>
-      <None Update="Properties\Settings.settings">
-        <Generator>SettingsSingleFileGenerator</Generator>
-        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-      </None>
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Version>5.1.8-adx.0.2.2</Version>
+    <Company></Company>
+    <Authors>bbben</Authors>
+    <PackageProjectUrl>https://github.com/kaieri-4946/MajdataEditX</PackageProjectUrl>
+    <Copyright>Copyright © 2021</Copyright>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Resources\bg_dummy.jpg" />
+    <None Remove="Resources\outline_find_replace_white_24dp.png" />
+    <None Remove="Resources\outline_search_white_24dp.png" />
+    <None Remove="Resources\SmoothSlideWhatsThis.jpg" />
+    <None Include="server.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DiffMatchPatch" Version="1.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.0" />
+    <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
+    <PackageReference Include="pythonnet" Version="3.0.5" />
+    <PackageReference Include="radio42.Bass.Net.core" Version="2.4.17.5" />
+    <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Semver" Version="2.3.0" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
+    <PackageReference Include="WPFLocalizeExtension" Version="3.10.0" />
+    <PackageReference Include="XAMLMarkupExtensions" Version="2.1.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ContentWithTargetPath Include="bass.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>bass.dll</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="bass_fx.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>bass_fx.dll</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="slide_time.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>slide_time.json</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>LICENSE_MajdataEdit</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MajSimai.Extensions\MajSimai.Extensions\MajSimai.Extensions.csproj" />
+    <ProjectReference Include="..\MajSimaiX\MajSimai.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\bg_dummy.jpg" />
+    <Resource Include="Resources\outline_find_replace_white_24dp.png" />
+    <Resource Include="Resources\outline_search_white_24dp.png" />
+    <Resource Include="Resources\SmoothSlideWhatsThis.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Removes global WinForms background injection to protect your WPF files -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
 </Project>

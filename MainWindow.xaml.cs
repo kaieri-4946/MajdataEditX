@@ -42,6 +42,7 @@ namespace MajdataEdit;
 public partial class MainWindow : Window
 {
     public static MainWindow instance;
+    public static UnityHost viewer;
 
     /// 设置窗口状态
     /// 仅配置 程序逻辑无关的UI元素，如可用性、标题栏文字等
@@ -179,8 +180,7 @@ public partial class MainWindow : Window
         }
     }
 
-    void set_err_count<T>(T eCount) => Dispatcher.Invoke(() => ErrCount.Content = $"{eCount}");
-
+    void set_err_count<T>(T eCount) => Dispatcher.Invoke(() => ErrCount.Text = $"Error List ({eCount} error(s))");
 
     // wave draw
     bool isDrawing;
@@ -231,8 +231,9 @@ public partial class MainWindow : Window
 
     private void init_wave()
     {
-        var width = (int)Width - 2;
+        var width = (int)MusicWave.ActualWidth;
         var height = (int)MusicWave.Height;
+        if (width < 72) width = (int)Width - 2;
         WaveBitmap = new WriteableBitmap(width, height, 72, 72, PixelFormats.Pbgra32, null);
         MusicWave.Source = WaveBitmap;
     }
@@ -670,11 +671,16 @@ public partial class MainWindow : Window
 
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
+        // Kill all existing view process
+        var processes = Process.GetProcessesByName("MajdataView");
+        foreach (var process in processes)
+            process.Kill();
+
         CheckAndStartView();
 
         TheWindow.Title = GetWindowsTitleString();
 
-        SetWindowGoldenPosition();
+        //SetWindowGoldenPosition();
 
         discordRpcClient.Logger = new ConsoleLogger { Level = LogLevel.Warning };
         discordRpcClient.Initialize();
@@ -770,8 +776,6 @@ public partial class MainWindow : Window
             await SyntaxCheck();
             await SimaiProcess.Serialize(GetRawFumenText());
             draw_wave();
-            if (!ErrCount.Content.ToString()!.EndsWith("?"))
-                set_err_count(ErrCount.Content.ToString() + "?");
         });
     }
 
@@ -788,10 +792,14 @@ public partial class MainWindow : Window
         var process = Process.GetProcessesByName("MajdataView");
         if (process.Length > 0)
         {
-            var result = MessageBox.Show(GetLocalizedString("AskCloseView"), GetLocalizedString("Attention"),
-                MessageBoxButton.YesNo);
-            if (result == MessageBoxResult.Yes)
-                process[0].Kill();
+            if (viewer is null || viewer.IsProcessKilled())
+            {
+                var result = MessageBox.Show(GetLocalizedString("AskCloseView"), GetLocalizedString("Attention"), MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                    process[0].Kill();
+            }
+            else
+                viewer.DestroyUnityApp();
         }
 
         currentTimeRefreshTimer.Stop();
@@ -984,7 +992,7 @@ public partial class MainWindow : Window
 
     private void MenuItem_GitHub_Click(object? sender, RoutedEventArgs e)
     {
-        Process.Start(new ProcessStartInfo() { FileName = "https://github.com/re-poem/MajdataViewX", UseShellExecute = true });
+        Process.Start(new ProcessStartInfo() { FileName = "https://github.com/kaieri-4946/MajdataViewADX", UseShellExecute = true });
     }
 
     private void MenuItem_SoundSetting_Click(object? sender, RoutedEventArgs e)
@@ -1043,6 +1051,21 @@ public partial class MainWindow : Window
             Owner = this
         };
         asr.ShowDialog();
+    }
+
+    private void Menu_UndockViewWindow(object? sender, RoutedEventArgs e)
+    {
+        viewer.UndockUnityApp();
+        UndockView.IsEnabled = false;
+        RedockView.IsEnabled = true;
+        ResetView.IsEnabled = true;
+    }
+    private void Menu_RedockViewWindow(object? sender, RoutedEventArgs e)
+    {
+        viewer.RedockUnityApp();
+        UndockView.IsEnabled = true;
+        RedockView.IsEnabled = false;
+        ResetView.IsEnabled = false;
     }
 
     #endregion
@@ -1204,10 +1227,6 @@ public partial class MainWindow : Window
     private async void FumenContent_SelectionChanged(object sender, RoutedEventArgs e)
     {
         if (IsLoading) return;
-
-        NoteNowText.Content =
-            (FumenContent.Text[..FumenContent.CaretIndex] //.Replace("\r", "") //没区别
-                                      .Count(o => o == '\n') + 1) + " 行";
 
         if (Bass.BASS_ChannelIsActive(bgmStream) == BASSActive.BASS_ACTIVE_PLAYING && FollowPlayCheck.IsChecked == true)
             return;
@@ -1645,4 +1664,16 @@ public partial class MainWindow : Window
             await InitFromFile(parent);
         }
     }
+
+    #region Docking
+    private void SplitterThumbRight_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+    {
+        double newWidth = ToolboxBorder.ActualWidth - e.HorizontalChange;
+
+        if (newWidth > 150)
+        {
+            ToolboxBorder.Width = newWidth;
+        }
+    }
+    #endregion
 }

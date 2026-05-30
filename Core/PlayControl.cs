@@ -53,6 +53,7 @@ public partial class MainWindow : Window
         switch (playMethod)
         {
             case PlayMethod.Record:
+                viewer.FixUnityWindowForRecording();
                 MessageBox.Show(GetLocalizedString("AskRender"), GetLocalizedString("Attention"));
                 Bass.BASS_ChannelSetAttribute(bgmStream, BASSAttribute.BASS_ATTRIB_FREQ, originFreq * GetPlaybackSpeed());
                 Bass.BASS_ChannelSetPosition(bgmStream, 0);

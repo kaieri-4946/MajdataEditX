@@ -1,4 +1,5 @@
 ﻿using DiscordRPC;
+using MajdataEdit.TextEditor.MarkupComponents;
 using MajdataEdit.Utils;
 using MajSimai.Extensions.Checker;
 using Newtonsoft.Json;
@@ -16,14 +17,13 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Un4seen.Bass;
 using WPFLocalizeExtension.Engine;
-using Timer = System.Timers.Timer;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MajdataEdit;
 
 public partial class MainWindow : Window
 {
-    // edit
-    private List<Error> Errors { get; set; } = new();
+    public static List<Error> Errors { get; set; } = new();
 
     public async Task ShowMuriDXErrorAsync(LaunchMaiMuriDX lmmdWindow)
     {
@@ -72,8 +72,16 @@ public partial class MainWindow : Window
                 {
                     Errors.Add(new(ErrorType.Syntax,
                                     new Position(error.Position.Column, error.Position.Line),
-                                    error.Message, error.Detail));
+                                    error.Message, error.Detail, error.IsFullNoteDiag, error.Severity));
                 }
+
+                ErrorListView.Items.Clear();
+                foreach (Error error in Errors)
+                {
+                    ErrorListView.Items.Add(error);
+                }
+                // Force rerendering for error markup
+                FumenContent.RerenderMarkup<ErrorMarkupComponent>();
                 return true;
             }
             else
@@ -82,7 +90,7 @@ public partial class MainWindow : Window
                 return false;
             }
         }
-        catch
+        catch (Exception ex)
         {
             set_err_count(GetLocalizedString("InternalErr"));
             return false;
@@ -144,6 +152,11 @@ public partial class MainWindow : Window
     {
         if (!File.Exists(editorSettingFilename)) CreateEditorSetting();
         var json = File.ReadAllText(editorSettingFilename);
+        if (json is null || json == "null")
+        {
+            CreateEditorSetting();
+            json = File.ReadAllText(editorSettingFilename);
+        }
         editorSetting = JsonConvert.DeserializeObject<EditorSetting>(json)!;
 
         if (RenderOptions.ProcessRenderMode != RenderMode.SoftwareOnly)
@@ -211,13 +224,13 @@ public partial class MainWindow : Window
         {
             try
             {
-                var viewProcess = Process.Start("MajdataView.exe");
-                var setWindowPosTimer = new Timer(2000)
+                string unityPath = "MajdataView.exe";
+                if (viewer is not null)
                 {
-                    AutoReset = false
-                };
-                setWindowPosTimer.Elapsed += SetWindowPosTimer_Elapsed;
-                setWindowPosTimer.Start();
+                    viewer.DestroyUnityApp();
+                }
+                viewer = new UnityHost(unityPath, UnityPanel);
+                viewer.StartUnityApp();
                 return true;
             }
             catch (Exception)
@@ -282,7 +295,7 @@ public partial class MainWindow : Window
         UpdateCheckLock = true;
 
         // 检查是否需要更新软件
-        var response = await WebControl.RequestGETAsync("http://api.github.com/repos/re-poem/MajdataViewX/releases/latest");
+        var response = await WebControl.RequestGETAsync("http://api.github.com/repos/kaieri-4946/MajdataViewADX/releases/latest");
 
         try
         {
@@ -385,6 +398,23 @@ public partial class MainWindow : Window
             SwitchFullKeyboardMode.Header = GetLocalizedString("SwitchFullKeyboardMode");
         }
     }
+
+    #region ErrorList
+    private void ErrorListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        txtDetail.Text = (ErrorListView.SelectedItem as Error)?.Detail ?? "";
+    }
+
+    private void ErrorListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        Error error = (ErrorListView.SelectedItem as Error)!;
+        if (error == null) return;
+        FumenContent.ScrollToVerticalOffset((error.Position.y - 1) * 28);
+        needChangeTime = true;
+        SetRawFumenPosition(error.Position.x, error.Position.y - 1);
+        FumenContent.Focus();
+    }
+    #endregion
 
     //////////////////// Helper Functions ////////////////////
 
