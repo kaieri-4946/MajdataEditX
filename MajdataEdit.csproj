@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <Version>5.1.8-adx.0.2.2</Version>
+    <Version>5.1.8-layout.0.1.0</Version>
     <Company></Company>
     <Authors>bbben</Authors>
     <PackageProjectUrl>https://github.com/kaieri-4946/MajdataEditX</PackageProjectUrl>
